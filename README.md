@@ -57,7 +57,7 @@ This project provides a console command to import products from a JSON URL, as p
 
 Usage:
 ```bash
-docker compose exec php bin/console app:import-products "https://example.com/products.json"
+docker compose exec php bin/console app:products:import "https://example.com/products.json"
 ```
 Expected JSON structure:
 ```json
