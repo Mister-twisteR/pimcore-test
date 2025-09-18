@@ -1,34 +1,91 @@
 # Pimcore Test Project
 
-## Getting started
+This repository contains a ready-to-run Pimcore project with Docker. Follow the steps below to start it locally and to use the custom console command for importing products.
 
-### Create database
+## Prerequisites
+- Docker Desktop (or Docker Engine) and Docker Compose v2
+- Git
 
-- Create a database for your project
-- Create a user for your database
-- Grant all privileges to your user
+## Quick start (Docker)
 
+1) Clone the repository
 ```bash
-
-mysql -u root -p -e "CREATE DATABASE pimcore";
-mysql -u root -p -e "CREATE USER 'my_user'@'localhost' IDENTIFIED BY 'pimcore_password';"
-mysql -u root -p -e "GRANT ALL PRIVILEGES ON pimcore.* TO 'my_user'@'localhost';"
+git clone https://github.com/Mister-twisteR/pimcore-test.git
+cd pimcore-test
 ```
 
-### Install Pimcore
-
+2) Start the containers (db, php, nginx, etc.)
 ```bash
-COMPOSER_MEMORY_LIMIT=-1 composer create-project pimcore/skeleton my-project
-cd ./my-project
-./vendor/bin/pimcore-install
+docker compose up -d
+```
+This will expose the site on http://localhost (nginx listens on port 80).
+
+3) Install PHP dependencies
+```bash
+docker compose exec php composer install
 ```
 
-- Point your virtual host to `my-project/public`
-- [Only for Apache] Create `my-project/public/.htaccess` according to https://pimcore.com/docs/platform/Pimcore/Installation_and_Upgrade/System_Setup_and_Hosting/Apache_Configuration/ 
-- Open https://your-host/admin in your browser
-- Done! 😎
+4) Install Pimcore (database schema, admin user, assets, etc.)
 
+Interactive install:
 ```bash
-./bin/console pimcore:deployment:classes-rebuild
+docker compose exec php vendor/bin/pimcore-install
+```
+
+MySQL connection is preconfigured via docker-compose (host: db, db: pimcore, user: pimcore, pass: pimcore). If prompted, use these values.
+
+5) Rebuild data object classes
+```bash
+docker compose exec php bin/console pimcore:deployment:classes-rebuild
+```
+
+6) Open the app
+- Frontend: http://localhost/
+- Admin: http://localhost/admin (use the admin credentials you set during install)
+
+## Product class
+Product class I've created using an admin panel. It has the next fields:
+- name (string, required)
+- gtin (integer, required, unique) - is used as the key for the product
+- image (relation field with an asset type)
+- date (date field)
+
+I've extended Product class and overrode the setName method to make sure that the name is always saved in uppercase.
+
+## Product import command
+This project provides a console command to import products from a JSON URL, as per the task requirements.
+
+Usage:
+```bash
+docker compose exec php bin/console app:import-products "https://example.com/products.json"
+```
+Expected JSON structure:
+```json
+{
+  "products": [
+    {
+      "name": "product",
+      "gtin": "123456789012",
+      "image": "/path/to/asset.jpg",
+      "date": "2024-03-25"
+    }
+  ]
+}
+```
+
+Notes:
+- command accepts URL or local file path as an argument
+- validating json structure
+- checking for required fields; if any is missing, the product is skipped
+- checking for existing product by gtin; if it exists, we update it; otherwise, we create a new one
+- gtin is treated as the key; non-digits are stripped before storing into the numeric field
+- name is always saved in UPPERCASE on import
+- date is parsed and stored as a Date object
+- image: if it is an external URL, the command downloads it, creates an Asset under /product-images, and links it; if it is a Pimcore asset path, it links it directly
+
+
+## Stopping the stack
+```bash
+docker compose down
 ```
 
