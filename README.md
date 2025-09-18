@@ -50,7 +50,7 @@ Product class I've created using an admin panel. It has the next fields:
 - image (relation field with an asset type)
 - date (date field)
 
-I've extended Product class and overrode the setName method to make sure that the name is always saved in uppercase.
+I've extended Product class and overrode the setName method to make sure that the name is always saved in uppercase. (/src/Model/DataObject/Product.php)
 
 ## Product import command
 This project provides a console command to import products from a JSON URL, as per the task requirements.
