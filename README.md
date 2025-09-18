@@ -1,7 +1,4 @@
-# Pimcore Project Skeleton 
-
-This skeleton should be used by experienced Pimcore developers for starting a new project from the ground up. 
-If you are new to Pimcore, it's better to start with our demo package, listed below 😉
+# Pimcore Test Project
 
 ## Getting started
 
@@ -31,4 +28,7 @@ cd ./my-project
 - Open https://your-host/admin in your browser
 - Done! 😎
 
+```bash
+./bin/console pimcore:deployment:classes-rebuild
+```
 

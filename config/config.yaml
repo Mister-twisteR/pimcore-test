@@ -3,6 +3,9 @@ imports:
 
 
 pimcore:
+    models:
+        class_overrides:
+            'Pimcore\Model\DataObject\Product': 'App\Model\DataObject\Product'
 
 # IMPORTANT Notice!
 # Following there are only some examples listed, for a full list of possible options, please run the following command:
